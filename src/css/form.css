@@ -1,0 +1,146 @@
+
+
+.title{
+	font-family: vogue;
+	font-size: 4vw;
+	padding:4% 0;
+}
+
+
+
+.form{ 
+	width: 30vw;
+	padding:3% 2% 2% 2%;
+	background-color:white;
+	box-shadow: 5px 5px 10px #373a40;
+	font-family: "Times New Roman";
+	font-size:1.5vw;	
+}
+
+
+.info{
+	text-align: left;	
+	padding:1% 0 3% 5%;
+	font-size: 0.9vw;
+	color:#cdc9c3;
+	font-weight: bold;
+}
+.infos{
+	text-align: left;
+	font-size: 1vw;
+	color:darkgrey;
+	font-weight: bold;
+	padding: 1% 0 3% 5%;
+}
+
+.warning{
+	font-size:1vw;
+	margin-left:5%;
+	color:red;
+}
+
+#ingredients input[type=number]{
+	height: auto;
+	font-size: 1.2vw;
+	font-family: "Times New Roman";
+	text-align: left;
+
+}
+
+input[type=text], input[type=number], input[type=password]{
+	width: 90%;
+	height:35px;
+	text-align: left;
+	margin:2% 0;
+	padding: 0 5%;
+	font-size:1vw;	
+	font-family: "Times New Roman";
+
+
+}
+
+input[type="file"] {
+    display: none;
+    font-size:1vw;	
+
+}
+
+input[type=text] .available{
+	border:red;
+}
+input[type=submit]{
+	font-family:'Times New Roman';
+	background-color:#f2a07b;
+	border:none;
+	height:auto;
+	width: 50%;
+	padding:2% 0;
+	border-radius: 5px;
+	font-size: 1.2vw;
+}
+
+input[type=submit]:hover{
+	opacity: 0.8;
+	cursor: pointer;
+}
+
+div a {
+	text-decoration: none;
+	color:gray;
+	font-size:1.1vw;
+}
+
+div a:hover{
+	color:black;
+}
+
+
+
+.custom-file-upload {
+	padding: 2% 0;
+    border: 1px solid #ccc;
+    display: inline-block;
+    cursor: pointer;
+    width: 90%;
+    font-size: 1vw;
+    background-color:#d9e4dd;
+}
+
+.custom-file-upload:hover{
+	opacity: 0.8;
+}
+textarea{
+	width:90.5%;
+	margin:3% 0;
+	padding: 3% 5% 0 5%;
+	font-family: "Times New Roman";
+	text-align: left;
+	max-width:90.5%;
+	min-width: 90.5%;
+	font-size:1vw;
+	min-height: 20%;
+
+}
+::-webkit-input-placeholder { /* Edge */
+	text-align: left;
+	font-family: "Times New Roman";
+}
+
+:-ms-input-placeholder { /* Internet Explorer 10-11 */
+	text-align: left;
+	font-family: "Times New Roman";
+
+}
+
+::placeholder {
+	text-align: left;
+	font-family: "Times New Roman";
+
+}
+
+@media only screen and (hover: none) and (pointer: coarse) {
+	input[type=text], input[type=number], input[type=password]{
+		height: 10px;
+	}
+
+}
