@@ -170,6 +170,7 @@ if(!isset($_COOKIE['username'])) {
 
     
   };
+
    function loadStock(){
         document.getElementById("plus-minus").style.display ="block";
         document.getElementById("plus-minus").style.float ="block";
@@ -201,21 +202,28 @@ if(!isset($_COOKIE['username'])) {
     ?>
     var jumlah = parseInt(document.getElementById("amount-to-action").innerHTML);
 
-    var cred = "id=" + id + "&jumlah=" + jumlah;
+    var cred = `<?xml version='1.0' encoding='UTF-8'?>
+                                <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+                                    <soap:Body>
+                                        
+                                        <ns2:insertNewAddStockRequest xmlns:ns2="http://factory/">
+                                            <arg0>`+id+`</arg0>
+                                            <arg1>`+jumlah+`</arg1>
+                                        </ns2:insertNewAddStockRequest>
+                                        
+                                    </soap:Body>
+                                </soap:Envelope>`;
+
     var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
           if (this.readyState == 4 && this.status == 200) {
-            // if(this.responseText) {
-            //   alert("Stock has been updated!"); 
-            // }else{
-            //   alert("Error occured!");
-            // }
-            alert(this.responseText);
+   	    alert("Request berhasil dikirim ke pabrik!");
+     
             location.reload();
           }
         };
-    xmlhttp.open("POST", "/src/php/action/action_addstock.php", true);
-    xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xmlhttp.open("POST", "http://localhost:8080/ws-factory/ws/server?wsdl", true);
+    xmlhttp.setRequestHeader("Content-type", "text/xml");
     xmlhttp.send(cred);  
   }
   function buy(){
@@ -248,6 +256,7 @@ if(!isset($_COOKIE['username'])) {
     var cred = "id=" + id + "&stock=" + x + "&uname="+uname+"&total="+tot+"&tstamp="+tstamp + "&address=" + document.getElementById("address").value;
     console.log(cred);
     var xmlhttp = new XMLHttpRequest();
+    var addsaldo = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
           if (this.readyState == 4 && this.status == 200) {
             if(this.responseText) {
@@ -258,9 +267,28 @@ if(!isset($_COOKIE['username'])) {
             location.reload();
           }
         };
+   
     xmlhttp.open("POST", "/src/php/action/action_buy.php", true);
     xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     xmlhttp.send(cred);  
+ 	var soapMessage = `<?xml version='1.0' encoding='UTF-8'?>
+                                <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+                                    <soap:Body>
+                                        
+                                        <ns2:addSaldo xmlns:ns2="http://factory/">
+                                            <arg0>`+tot+`</arg0>
+                                        </ns2:addSaldo>
+                                        
+                                    </soap:Body>
+                                </soap:Envelope>`;
+ 	addsaldo.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+            location.reload();
+          }
+        };
+    addsaldo.open("POST", "http://localhost:8080/ws-factory/ws/server?wsdl", true);
+    addsaldo.setRequestHeader("Content-type", "text/xml");
+    addsaldo.send(soapMessage);
   }
   function cancel(){
     document.getElementById("cancel").style.display ="none";

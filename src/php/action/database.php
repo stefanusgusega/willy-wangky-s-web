@@ -1,8 +1,8 @@
 <?php 
 class database{
 	public $host = "localhost";
-	public $username = "wbd";
-	public $password = "12345678";
+	public $username = "root";
+	public $password = "";
 	public $database = "wbd";
 	public $connection;
  
