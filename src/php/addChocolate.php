@@ -3,6 +3,14 @@
 	if(!isset($_COOKIE['superuser'])){
 		header('location:/homepage');
 	}
+echo '<script language="javascript">';
+if($_COOKIE['add'] == '1'){
+	echo 'alert("Chocolate has been added!");';
+} else if ($_COOKIE['add'] == '0'){
+	echo 'alert("Error occured");';
+}
+echo '</script>';
+setcookie('add', '', 0, '/');
 	
 ?>
 
@@ -58,12 +66,12 @@
 
 <script type="text/javascript">
 
-	fetch('http://localhost:3000/bahan')
+	fetch('http://localhost:4000/bahan')
 		.then((res) => res.json())
 		  .then((data) => {
 
 		  		bahanName = document.getElementById('ingredients');
-				data.forEach(bahan => {
+				data.forEach((bahan,i) => {
 		  			rowElements = document.createElement("div");
 		  			rowElements.setAttribute("class","row");
 		  			col1 = document.createElement("div");
@@ -75,7 +83,7 @@
 		  			span.innerText="Rp. ";
 		  			col3.appendChild(span);
 		  			harga = document.createElement("span");
-		  			harga.setAttribute("id","harga-"+`${bahan.id_bahan}`);
+		  			harga.setAttribute("id","harga-"+i);
 
 		  			harga.innerText = `${bahan.harga_bahan}`;
 		  			col3.appendChild(harga);
@@ -88,13 +96,13 @@
 				    var id = document.createElement("INPUT");
 				    id.setAttribute("type","hidden");
 				    id.setAttribute("name","idlist[]");
-				    id.setAttribute("value",`${bahan.id_bahan}`)
+				    id.setAttribute("value",`${bahan.nama_bahan}`)
 
 					x.setAttribute("type", "number");
 					x.setAttribute("class","special");
 					x.setAttribute("required",true);
 					x.setAttribute("name","input[]");
-					x.setAttribute("id","total-" +`${bahan.id_bahan}` );
+					x.setAttribute("id","total-" +i);
 					x.setAttribute("value",0);
 					x.setAttribute("oninput","countPrice()");
 					col2.appendChild(x);
@@ -182,17 +190,7 @@
 			return false;
 		}
 	}
-	<?php
-		if (isset($_COOKIE['add'])){
-			if ($_COOKIE['add'] == '0' || $_COOKIE['add'] == 2){
-				echo 'document.getElementById("request").innerHTML = "Adding Failed"';
-		    } else if($_COOKIE['add'] == '1'){
-				echo 'document.getElementById("request").innerHTML = "New Chocolate Added"';
-		    } 
-		    setcookie('add', '',0, '/');
-		}
-
-	?>
+	
 
 	
 </script>

@@ -11,6 +11,7 @@ if(!isset($_COOKIE['username'])) {
     header('location:/login');
   }
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -202,17 +203,7 @@ if(!isset($_COOKIE['username'])) {
     ?>
     var jumlah = parseInt(document.getElementById("amount-to-action").innerHTML);
 
-    var cred = `<?xml version='1.0' encoding='UTF-8'?>
-                                <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-                                    <soap:Body>
-                                        
-                                        <ns2:insertNewAddStockRequest xmlns:ns2="http://factory/">
-                                            <arg0>`+id+`</arg0>
-                                            <arg1>`+jumlah+`</arg1>
-                                        </ns2:insertNewAddStockRequest>
-                                        
-                                    </soap:Body>
-                                </soap:Envelope>`;
+    var cred = `<?xml version='1.0' encoding='UTF-8'?> <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"> <soap:Body> <ns2:insertNewAddStockRequest xmlns:ns2="http://factory/"> <arg0>`+id+`</arg0> <arg1>`+jumlah+`</arg1> </ns2:insertNewAddStockRequest> </soap:Body> </soap:Envelope>`;
 
     var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
@@ -264,7 +255,6 @@ if(!isset($_COOKIE['username'])) {
             }else{
               alert("Error occured!");
             }
-            location.reload();
           }
         };
    
@@ -283,6 +273,7 @@ if(!isset($_COOKIE['username'])) {
                                 </soap:Envelope>`;
  	addsaldo.onreadystatechange = function() {
           if (this.readyState == 4 && this.status == 200) {
+	   
             location.reload();
           }
         };

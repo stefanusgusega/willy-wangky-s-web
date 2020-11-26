@@ -1,8 +1,10 @@
 <?php
 
 class bahan{
-	public $id;
+	public $idBahan;
+	public $namaBahan;
 	public $jumlah;
+	public $tanggalExp;
 
 	
 }
