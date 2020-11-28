@@ -125,8 +125,9 @@ if(!isset($_COOKIE['username'])) {
 
 </body>
 <script type="text/javascript">
-
+var findingstock = false;
   window.onload = function() {
+	checkStock();
     <?php
       include_once 'src/php/action/database.php';
       // include_once './action/database.php';
@@ -216,6 +217,7 @@ if(!isset($_COOKIE['username'])) {
     xmlhttp.open("POST", "http://localhost:8080/ws-factory/ws/server?wsdl", true);
     xmlhttp.setRequestHeader("Content-type", "text/xml");
     xmlhttp.send(cred);  
+    checkStock();
   }
   function buy(){
     // x itu amount
@@ -309,6 +311,8 @@ if(!isset($_COOKIE['username'])) {
   }
 
   function checkStock() {
+    if (!findingstock){
+	//findingstock = true; // buat flag aja ada loop lgi ongoing
     var url = "http://localhost:8080/ws-factory/ws/server?wsdl";
     var arrayOfDeliveredReq = `<?xml version='1.0' encoding='UTF-8'?>
                                   <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
@@ -324,12 +328,12 @@ if(!isset($_COOKIE['username'])) {
     xmlHttpDelivReq.onreadystatechange = function() {
       if (this.readyState == 4 && this.status == 200) {
         requestParser = new DOMParser();
-        requestXMLParsed = requestParser.parseFromString(this.responseText);
+        requestXMLParsed = requestParser.parseFromString(this.responseText,"text/xml");
         arrayLength = requestXMLParsed.getElementsByTagName("item").length;
-        
+  	// kalau gaada yang delivered
+	if (arrayLength != 0) {
         for (var i = 0 ; i < arrayLength; i++) {
           isi = requestXMLParsed.getElementsByTagName("item")[i].childNodes[0].nodeValue;
-          if (isi != 0) {
             // Ajax lagi buat ngambil id_coklat sama jumlah
             var addStockInfoReq = `<?xml version='1.0' encoding='UTF-8'?>
                                   <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
@@ -345,9 +349,9 @@ if(!isset($_COOKIE['username'])) {
             xmlHttpInfoAddStock.onreadystatechange = function() {
               if (this.readyState == 4 && this.status == 200) {
                 infoParser = new DOMParser();
-                infoParsed = infoParser.parseFromString(this.responseText);
-                idChoco = infoParser.getElementsByTagName("chocoID")[0].childNodes[0].nodeValue;
-                jumlah = infoParser.getElementsByTagName("jumlah")[0].childNodes[0].nodeValue;
+                infoParsed = infoParser.parseFromString(this.responseText,"text/xml");
+                idChoco = infoParsed.getElementsByTagName("chocoID")[0].childNodes[0].nodeValue;
+                jumlah = infoParsed.getElementsByTagName("jumlah")[0].childNodes[0].nodeValue;
                 // update di db
                 // nambah coklat di db wwweb
                 // GIMANA NGAMBIL IDCHOCO SM JUMLAH KE PHP
@@ -370,6 +374,9 @@ if(!isset($_COOKIE['username'])) {
                                       </soap:Body>
                                   </soap:Envelope>`;
                 var xmlChangeToReceived = new XMLHttpRequest();
+		// check masi ada yg pending/ nggak
+		// kalo masi masuk ke checkstock() lagi (paling dikasi waktu jeda 10 detik gitu si biar ga langsung), kalo nggak berhenti
+		///
                 xmlChangeToReceived.open('POST',url,true);
                 xmlChangeToReceived.setRequestHeader("Content-type", "text/xml");
                 xmlChangeToReceived.send(msgToChangeToReceived);
@@ -379,16 +386,16 @@ if(!isset($_COOKIE['username'])) {
             xmlHttpInfoAddStock.open('POST',url,true);
             xmlHttpInfoAddStock.setRequestHeader("Content-type","text/xml");
             xmlHttpInfoAddStock.send(addStockInfoReq);
-          }
-          else {
-            break;
-          }
         }
-      }
+      } // check masi ada yang pending / nggak
+	// kalo masi masuk ke checkstock lagi ( i guess dibikin function aja)
+	}
     };
     xmlHttpDelivReq.open("POST",url,true);
     xmlHttpDelivReq.setRequestHeader("Content-type","text/xml");
     xmlHttpDelivReq.send(arrayOfDeliveredReq);
+     }
   }
+
 </script>
 </html>
