@@ -135,6 +135,11 @@ class database{
 		$id = $result->num_rows + 1;
 		return $id;
 	}
+	function getId($name){
+		$result=$this->connection->query("select id from product where name ='$name'");
+		$res=$result->fetch_array()[0];
+		return $res;
+	}
 	function addChocolate($name,$price,$amount,$desc,$path){
 		$query = mysqli_query($this->connection,"insert into product values (NULL,'$name',0,'$price','$amount','$desc','$path')");
 		if ($query) {
