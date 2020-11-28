@@ -146,7 +146,7 @@ setcookie('add', '', 0, '/');
 
 	
 	function countPrice(){
-		var i =1;
+		var i =0;
 		var box = document.getElementById("total-"+i);
 		var total = 0;
 		while (box != null){
