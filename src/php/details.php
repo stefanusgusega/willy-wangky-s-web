@@ -308,5 +308,28 @@ if(!isset($_COOKIE['username'])) {
     document.getElementById("total-price").innerHTML = "Total price: Rp "+tot;
   }
 
+  function checkStock() {
+    var countIDString = <?php
+      $db = new database();
+      $res = $db->countID();
+      echo $res;
+      ?>
+    var countID = parseInt(countIDString);
+    for (var i = 1; i <= countID; i++) {
+      var req = `<?xml version='1.0' encoding='UTF-8'?>
+                                  <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+                                      <soap:Body>
+                                          
+                                          <ns2:getAddStockStatus xmlns:ns2="http://factory/">
+                                              <arg0>`+i+`</arg0>
+                                          </ns2:getAddStockStatus>
+                                          
+                                      </soap:Body>
+                                  </soap:Envelope>`;
+      
+
+    }
+  }
+
 </script>
 </html>
