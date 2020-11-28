@@ -15,7 +15,7 @@ Basis data terdiri dari :
 ### BEFORE
 ![add-choco](./out/add-choco.PNG)
 ### AFTER
-![addchoco](./out/addchoco.JPG)
+![addchoco](./out/addchoco.jpg)
 
 ## Instalasi
 ### APACHE
