@@ -309,27 +309,86 @@ if(!isset($_COOKIE['username'])) {
   }
 
   function checkStock() {
-    var countIDString = <?php
-      $db = new database();
-      $res = $db->countID();
-      echo $res;
-      ?>
-    var countID = parseInt(countIDString);
-    for (var i = 1; i <= countID; i++) {
-      var req = `<?xml version='1.0' encoding='UTF-8'?>
+    var url = "http://localhost:8080/ws-factory/ws/server?wsdl";
+    var arrayOfDeliveredReq = `<?xml version='1.0' encoding='UTF-8'?>
                                   <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
                                       <soap:Body>
                                           
-                                          <ns2:getAddStockStatus xmlns:ns2="http://factory/">
-                                              <arg0>`+i+`</arg0>
-                                          </ns2:getAddStockStatus>
+                                          <ns2:getArrayOfIDStockDelivered xmlns:ns2="http://factory/">
+                                              
+                                          </ns2:getArrayOfIDStockDelivered>
+                                          
+                                      </soap:Body>
+                                  </soap:Envelope>`; 
+    var xmlHttpDelivReq = new XMLHttpRequest();
+    xmlHttpDelivReq.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        requestParser = new DOMParser();
+        requestXMLParsed = requestParser.parseFromString(this.responseText);
+        arrayLength = requestXMLParsed.getElementsByTagName("item").length;
+        
+        for (var i = 0 ; i < arrayLength; i++) {
+          isi = requestXMLParsed.getElementsByTagName("item")[i].childNodes[0].nodeValue;
+          if (isi != 0) {
+            // Ajax lagi buat ngambil id_coklat sama jumlah
+            var addStockInfoReq = `<?xml version='1.0' encoding='UTF-8'?>
+                                  <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+                                      <soap:Body>
+                                          
+                                          <ns2:getFullAddStockElmt xmlns:ns2="http://factory/">
+                                              <arg0>`+isi+`</arg0>
+                                          </ns2:getFullAddStockElmt>
+                                          
+                                      </soap:Body>
+                                  </soap:Envelope>`; 
+            var xmlHttpInfoAddStock = new XMLHttpRequest();
+            xmlHttpInfoAddStock.onreadystatechange = function() {
+              if (this.readyState == 4 && this.status == 200) {
+                infoParser = new DOMParser();
+                infoParsed = infoParser.parseFromString(this.responseText);
+                idChoco = infoParser.getElementsByTagName("chocoID")[0].childNodes[0].nodeValue;
+                jumlah = infoParser.getElementsByTagName("jumlah")[0].childNodes[0].nodeValue;
+                // update di db
+                // nambah coklat di db wwweb
+                // GIMANA NGAMBIL IDCHOCO SM JUMLAH KE PHP
+                var xmlForPHP = new XMLHttpRequest();
+                var msg = "idChoco="+idChoco+"&jumlah="+jumlah;
+                xmlForPHP.open("POST","/src/php/action/action_delivered.php",true);
+                xmlForPHP.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                xmlForPHP.send(msg);
+                // td dikasih php malah error
+                // ngurangin coklat di db factory
+
+                var msgToChangeToReceived = `<?xml version='1.0' encoding='UTF-8'?>
+                                  <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+                                      <soap:Body>
+                                          
+                                          <ns2:changeStatusAddStockToDeliv xmlns:ns2="http://factory/">
+                                              <arg0>`+isi+`</arg0>
+                                          </ns2:changeStatusAddStockToDeliv>
                                           
                                       </soap:Body>
                                   </soap:Envelope>`;
-      
+                var xmlChangeToReceived = new XMLHttpRequest();
+                xmlChangeToReceived.open('POST',url,true);
+                xmlChangeToReceived.setRequestHeader("Content-type", "text/xml");
+                xmlChangeToReceived.send(msgToChangeToReceived);
+              }
 
-    }
+            };
+            xmlHttpInfoAddStock.open('POST',url,true);
+            xmlHttpInfoAddStock.setRequestHeader("Content-type","text/xml");
+            xmlHttpInfoAddStock.send(addStockInfoReq);
+          }
+          else {
+            break;
+          }
+        }
+      }
+    };
+    xmlHttpDelivReq.open("POST",url,true);
+    xmlHttpDelivReq.setRequestHeader("Content-type","text/xml");
+    xmlHttpDelivReq.send(arrayOfDeliveredReq);
   }
-
 </script>
 </html>
