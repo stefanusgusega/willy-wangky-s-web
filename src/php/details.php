@@ -325,6 +325,7 @@ var findingstock = false;
                                       </soap:Body>
                                   </soap:Envelope>`; 
     var xmlHttpDelivReq = new XMLHttpRequest();
+    xmlHttpDelivReq.open("POST",url,true);
     xmlHttpDelivReq.onreadystatechange = function() {
       if (this.readyState == 4 && this.status == 200) {
         requestParser = new DOMParser();
@@ -346,6 +347,8 @@ var findingstock = false;
                                       </soap:Body>
                                   </soap:Envelope>`; 
             var xmlHttpInfoAddStock = new XMLHttpRequest();
+            console.log("masuk ajax kedua");
+            xmlHttpInfoAddStock.open('POST',url,true);
             xmlHttpInfoAddStock.onreadystatechange = function() {
               if (this.readyState == 4 && this.status == 200) {
                 infoParser = new DOMParser();
@@ -378,12 +381,18 @@ var findingstock = false;
 		// kalo masi masuk ke checkstock() lagi (paling dikasi waktu jeda 10 detik gitu si biar ga langsung), kalo nggak berhenti
 		///
                 xmlChangeToReceived.open('POST',url,true);
+                xmlChangeToReceived.onreadystatechange = function() {
+                  if (this.readyState==4 && this.status == 200) {
+                    console.log("harusnya brubah jd received");
+                  }
+                };
+                
                 xmlChangeToReceived.setRequestHeader("Content-type", "text/xml");
                 xmlChangeToReceived.send(msgToChangeToReceived);
               }
 
             };
-            xmlHttpInfoAddStock.open('POST',url,true);
+            
             xmlHttpInfoAddStock.setRequestHeader("Content-type","text/xml");
             xmlHttpInfoAddStock.send(addStockInfoReq);
         }
@@ -391,7 +400,7 @@ var findingstock = false;
 	// kalo masi masuk ke checkstock lagi ( i guess dibikin function aja)
 	}
     };
-    xmlHttpDelivReq.open("POST",url,true);
+    
     xmlHttpDelivReq.setRequestHeader("Content-type","text/xml");
     xmlHttpDelivReq.send(arrayOfDeliveredReq);
      }
