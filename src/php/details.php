@@ -125,9 +125,12 @@ if(!isset($_COOKIE['username'])) {
 
 </body>
 <script type="text/javascript">
-var findingstock = false;
+var isChecking = false;
   window.onload = function() {
-	checkStock();
+
+	  checkStock();
+
+  
     <?php
       include_once 'src/php/action/database.php';
       // include_once './action/database.php';
@@ -311,10 +314,12 @@ var findingstock = false;
   }
 
   function checkStock() {
-    if (!findingstock){
-	//findingstock = true; // buat flag aja ada loop lgi ongoing
-    var url = "http://localhost:8080/ws-factory/ws/server?wsdl";
-    var arrayOfDeliveredReq = `<?xml version='1.0' encoding='UTF-8'?>
+    if (!isChecking){
+  	  isChecking = true; // buat flag aja ada loop lgi ongoing
+
+      console.log('coba dulu');
+      var url = "http://localhost:8080/ws-factory/ws/server?wsdl";
+      var arrayOfDeliveredReq = `<?xml version='1.0' encoding='UTF-8'?>
                                   <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
                                       <soap:Body>
                                           
@@ -324,86 +329,116 @@ var findingstock = false;
                                           
                                       </soap:Body>
                                   </soap:Envelope>`; 
-    var xmlHttpDelivReq = new XMLHttpRequest();
-    xmlHttpDelivReq.open("POST",url,true);
-    xmlHttpDelivReq.onreadystatechange = function() {
-      if (this.readyState == 4 && this.status == 200) {
-        requestParser = new DOMParser();
-        requestXMLParsed = requestParser.parseFromString(this.responseText,"text/xml");
-        arrayLength = requestXMLParsed.getElementsByTagName("item").length;
-  	// kalau gaada yang delivered
-	if (arrayLength != 0) {
-        for (var i = 0 ; i < arrayLength; i++) {
-          isi = requestXMLParsed.getElementsByTagName("item")[i].childNodes[0].nodeValue;
+      var xmlHttpDelivReq = new XMLHttpRequest();
+      
+      xmlHttpDelivReq.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          requestParser = new DOMParser();
+          requestXMLParsed = requestParser.parseFromString(this.responseText,"text/xml");
+          arrayLength = requestXMLParsed.getElementsByTagName("item").length;
+  	      // kalau gaada yang delivered
+          console.log("sebelum masuk if arrlength");
+	        if (arrayLength != 0) {
+            console.log("sesudah masuk if arrlength");
+
+            for (var i = 0 ; i < arrayLength; i++) {
+              isi = requestXMLParsed.getElementsByTagName("item")[i].childNodes[0].nodeValue;
             // Ajax lagi buat ngambil id_coklat sama jumlah
-            var addStockInfoReq = `<?xml version='1.0' encoding='UTF-8'?>
-                                  <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-                                      <soap:Body>
-                                          
-                                          <ns2:getFullAddStockElmt xmlns:ns2="http://factory/">
-                                              <arg0>`+isi+`</arg0>
-                                          </ns2:getFullAddStockElmt>
-                                          
-                                      </soap:Body>
-                                  </soap:Envelope>`; 
-            var xmlHttpInfoAddStock = new XMLHttpRequest();
-            console.log("masuk ajax kedua");
-            xmlHttpInfoAddStock.open('POST',url,true);
-            xmlHttpInfoAddStock.onreadystatechange = function() {
-              if (this.readyState == 4 && this.status == 200) {
-                infoParser = new DOMParser();
-                infoParsed = infoParser.parseFromString(this.responseText,"text/xml");
-                idChoco = infoParsed.getElementsByTagName("chocoID")[0].childNodes[0].nodeValue;
-                jumlah = infoParsed.getElementsByTagName("jumlah")[0].childNodes[0].nodeValue;
-                // update di db
-                // nambah coklat di db wwweb
-                // GIMANA NGAMBIL IDCHOCO SM JUMLAH KE PHP
-                var xmlForPHP = new XMLHttpRequest();
-                var msg = "idChoco="+idChoco+"&jumlah="+jumlah;
-                xmlForPHP.open("POST","/src/php/action/action_delivered.php",true);
-                xmlForPHP.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                xmlForPHP.send(msg);
-                // td dikasih php malah error
-                // ngurangin coklat di db factory
+              var addStockInfoReq = `<?xml version='1.0' encoding='UTF-8'?>
+                                    <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+                                        <soap:Body>
+                                            
+                                            <ns2:getFullAddStockElmt xmlns:ns2="http://factory/">
+                                                <arg0>`+isi+`</arg0>
+                                            </ns2:getFullAddStockElmt>
+                                            
+                                        </soap:Body>
+                                    </soap:Envelope>`; 
+              var xmlHttpInfoAddStock = new XMLHttpRequest();
+              console.log("masuk ajax kedua");
+              
+              xmlHttpInfoAddStock.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                  infoParser = new DOMParser();
+                  infoParsed = infoParser.parseFromString(this.responseText,"text/xml");
+                  idChoco = infoParsed.getElementsByTagName("chocoID")[0].childNodes[0].nodeValue;
+                  jumlah = infoParsed.getElementsByTagName("jumlah")[0].childNodes[0].nodeValue;
+                  chocoName = infoParsed.getElementsByTagName("chocoName")[0].childNodes[0].nodeValue;
+                  // update di db
+                  // nambah coklat di db wwweb
+                  // GIMANA NGAMBIL IDCHOCO SM JUMLAH KE PHP
+                  var xmlForPHP = new XMLHttpRequest();
+                  var msg = "idChoco="+idChoco+"&jumlah="+jumlah;
+                  xmlForPHP.open("POST","/src/php/action/action_delivered.php",true);
+                  xmlForPHP.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                  xmlForPHP.send(msg);
+                  // ngurangin coklat di db factory
 
-                var msgToChangeToReceived = `<?xml version='1.0' encoding='UTF-8'?>
-                                  <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-                                      <soap:Body>
-                                          
-                                          <ns2:changeStatusAddStockToDeliv xmlns:ns2="http://factory/">
-                                              <arg0>`+isi+`</arg0>
-                                          </ns2:changeStatusAddStockToDeliv>
-                                          
-                                      </soap:Body>
-                                  </soap:Envelope>`;
-                var xmlChangeToReceived = new XMLHttpRequest();
-		// check masi ada yg pending/ nggak
-		// kalo masi masuk ke checkstock() lagi (paling dikasi waktu jeda 10 detik gitu si biar ga langsung), kalo nggak berhenti
-		///
-                xmlChangeToReceived.open('POST',url,true);
-                xmlChangeToReceived.onreadystatechange = function() {
-                  if (this.readyState==4 && this.status == 200) {
-                    console.log("harusnya brubah jd received");
-                  }
-                };
-                
-                xmlChangeToReceived.setRequestHeader("Content-type", "text/xml");
-                xmlChangeToReceived.send(msgToChangeToReceived);
-              }
+                  var msgToChangeToReceived = `<?xml version='1.0' encoding='UTF-8'?>
+                                    <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+                                        <soap:Body>
+                                            
+                                            <ns2:changeStatusAddStockToReceived xmlns:ns2="http://factory/">
+                                                <arg0>`+isi+`</arg0>
+                                            </ns2:changeStatusAddStockToReceived>
+                                            
+                                        </soap:Body>
+                                    </soap:Envelope>`;
+                  var xmlChangeToReceived = new XMLHttpRequest();
+                  // check masi ada yg pending/ nggak
+                  // kalo masi masuk ke checkstock() lagi (paling dikasi waktu jeda 10 detik gitu si biar ga langsung), kalo nggak berhenti
+                  ///
+                  
+                  xmlChangeToReceived.onreadystatechange = function() {
+                    if (this.readyState==4 && this.status == 200) {
+                      // disini cek nya buat masi ada yg pending apa ga
+                      console.log(this.responseText);
+                      var msgCheckPendings = `<?xml version='1.0' encoding='UTF-8'?>
+                                    <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+                                        <soap:Body>
+                                            
+                                            <ns2:isThereAnyPending xmlns:ns2="http://factory/">
+                                                
+                                            </ns2:isThereAnyPending>
+                                            
+                                        </soap:Body>
+                                    </soap:Envelope>`;
+                      var xmlDetectPendingsReq = new XMLHttpRequest();
+                      xmlDetectPendingsReq.onreadystatechange = function() {
+                        if (this.readyState==4 && this.status==200) {
+                          detectionParser = new DOMParser();
+                          detectionParsed = detectionParser.parseFromString(this.responseText,"text/xml");
+                          isThereAnyPending = detectionParsed.getElementsByTagName("return")[0].childNodes[0].nodeValue;
+                          console.log(isThereAnyPending);
+                        }
+                      };
+                      xmlDetectPendingsReq.open('POST',url,true);
+                      xmlDetectPendingsReq.setRequestHeader("Content-type","text/xml");
+                      xmlDetectPendingsReq.send(msgCheckPendings);
 
-            };
-            
-            xmlHttpInfoAddStock.setRequestHeader("Content-type","text/xml");
-            xmlHttpInfoAddStock.send(addStockInfoReq);
-        }
-      } // check masi ada yang pending / nggak
-	// kalo masi masuk ke checkstock lagi ( i guess dibikin function aja)
-	}
-    };
-    
-    xmlHttpDelivReq.setRequestHeader("Content-type","text/xml");
-    xmlHttpDelivReq.send(arrayOfDeliveredReq);
-     }
+                    }
+                  };
+                  xmlChangeToReceived.open('POST',url,true);
+                  xmlChangeToReceived.setRequestHeader("Content-type", "text/xml");
+                  xmlChangeToReceived.send(msgToChangeToReceived);
+                  alert(chocoName + "'s "+ jumlah+" addition stock request has been accepted!");
+                  location.reload();
+                }
+
+              };
+              xmlHttpInfoAddStock.open('POST',url,true);
+              xmlHttpInfoAddStock.setRequestHeader("Content-type","text/xml");
+              xmlHttpInfoAddStock.send(addStockInfoReq);
+            }
+          } // check masi ada yang pending / nggak
+	          // kalo masi masuk ke checkstock lagi ( i guess dibikin function aja)
+	      }
+      };
+      xmlHttpDelivReq.open("POST",url,true);
+      xmlHttpDelivReq.setRequestHeader("Content-type","text/xml");
+      xmlHttpDelivReq.send(arrayOfDeliveredReq);
+      isChecking = false;
+    }
   }
 
 </script>
