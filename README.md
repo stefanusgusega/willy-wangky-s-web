@@ -154,10 +154,10 @@ Setiap anggota kelompok diwajibkan untuk mengerjakan bagian frontend dan backend
 
 ### SOAP
 1. Factory Fungsi 1 : 13518101
-2. Factory Fungsi 2  : 13519149
+2. Factory Fungsi 2  : 13518149
 3. Factory Fungsi 3 : 13518149
 4. Factory Fungsi 4 : 13518101, 13518142
-5. Factory Fungsi 5 : 13518101, 13518142
+5. Factory Fungsi 5 : 13518101, 13518142, 13518149
 6. Factory Fungsi 6 : 13518101
 7. Factory Fungsi 7 : 13518101
 8. Factory Fungsi 8 : 13518101

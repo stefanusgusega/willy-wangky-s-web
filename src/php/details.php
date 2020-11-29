@@ -125,10 +125,11 @@ if(!isset($_COOKIE['username'])) {
 
 </body>
 <script type="text/javascript">
+  // isChecking = false;
 
   window.onload = function() {
-
-	  checkStock();
+    var i = 0
+	  // checkPending();
 
   
     <?php
@@ -171,10 +172,16 @@ if(!isset($_COOKIE['username'])) {
         echo 'document.getElementById("buy-now").onclick = function(){loadBuy()};';
       }
     ?>
-   
+    // while (true) {
+      
+    //   sleep(10000).then(() => { checkPending(); });
+      
+    // }
 
     
   };
+
+  checkPending();
 
    function loadStock(){
         document.getElementById("plus-minus").style.display ="block";
@@ -317,10 +324,55 @@ if(!isset($_COOKIE['username'])) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
+  function checkPending() {
+    console.log("ngecek di sini");
+    var url = "http://localhost:8080/ws-factory/ws/server?wsdl";
+        var msgCheckPendings = `<?xml version='1.0' encoding='UTF-8'?>
+                                      <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+                                          <soap:Body>
+                                                
+                                              <ns2:isThereAnyPending xmlns:ns2="http://factory/">
+                                                    
+                                              </ns2:isThereAnyPending>
+                                                
+                                          </soap:Body>
+                                      </soap:Envelope>`;
+        var xmlDetectPendingsReq = new XMLHttpRequest();
+        xmlDetectPendingsReq.onreadystatechange = function() {
+          console.log("readystate: "+this.readyState+" status:"+this.statusText);
+          if (this.readyState==4 && this.status==200) {
+            detectionParser = new DOMParser();
+            detectionParsed = detectionParser.parseFromString(this.responseText,"text/xml");
+            console.log(this.responseText);
+            isThereAnyPending = detectionParsed.getElementsByTagName("return")[0].childNodes[0].nodeValue;
+            // check = true;
+            // if (isThereAnyPending) {
+            //   console.log("ini lho masuk true");
+            //   isCheck = false;
+            //   console.log(isCheck);
+            //   checkStock();
+            // }
+            // else {
+            //   // console.log("false");
+            //   isCheck = true;
+
+            // }
+            if (isThereAnyPending) {
+              checkStock();
+            }
+            
+            
+             
+          }
+        };
+        xmlDetectPendingsReq.open('POST',url,true);
+        xmlDetectPendingsReq.setRequestHeader("Content-type","text/xml");
+        xmlDetectPendingsReq.send(msgCheckPendings);
+        
+  }
   function checkStock() {
-      isChecking = true;
+      // isChecking = true;
   	  // isChecking = true; // buat flag aja ada loop lgi ongoing
-      while (isChecking) {
 
         console.log('coba dulu');
         var url = "http://localhost:8080/ws-factory/ws/server?wsdl";
@@ -339,6 +391,8 @@ if(!isset($_COOKIE['username'])) {
           // while (isChecking) {
         xmlHttpDelivReq.onreadystatechange = function() {
           if (this.readyState == 4 && this.status == 200) {
+            // checkPending();
+            // console.log(isCheck);
             requestParser = new DOMParser();
             requestXMLParsed = requestParser.parseFromString(this.responseText,"text/xml");
             arrayLength = requestXMLParsed.getElementsByTagName("item").length;
@@ -407,8 +461,24 @@ if(!isset($_COOKIE['username'])) {
                     xmlChangeToReceived.open('POST',url,true);
                     xmlChangeToReceived.setRequestHeader("Content-type", "text/xml");
                     xmlChangeToReceived.send(msgToChangeToReceived);
+                    
+                    var xmlViewingName = new XMLHttpRequest();
+                    var msgView = "idChoco="+idChoco;
+                    xmlViewingName.open("POST","/src/php/action/database.php",true);
+                    xmlViewingName.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                    xmlViewingName.send(msgView);
+                   <?php
+                      include_once 'src/php/action/database.php';
+                      $db = new Database();
+                      $id = $_GET["id"];
+                      $var = $db->getChocDetails($id,"amountRemaining");
+                      echo "var newAmt = '$var';";
+
+                      ?>
+                    console.log(newAmt);
                     alert(chocoName + "'s "+ jumlah+" addition stock request has been accepted!");
-                    location.reload();
+                    document.getElementById('details-amount').innerHTML = newAmt;
+                    document.getElementById('details-amount').style.color = "green";
                   }
 
                 };
@@ -418,52 +488,20 @@ if(!isset($_COOKIE['username'])) {
               }
             } // check masi ada yang pending / nggak
                   // kalo masi masuk ke checkstock lagi ( i guess dibikin function aja)
-                
+            // isChecking = checkPending();
 
           } 
         };
         xmlHttpDelivReq.open("POST",url,true);
         xmlHttpDelivReq.setRequestHeader("Content-type","text/xml");
         xmlHttpDelivReq.send(arrayOfDeliveredReq);
-        console.log("ngecek di sini");
-        var msgCheckPendings = `<?xml version='1.0' encoding='UTF-8'?>
-                                      <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-                                          <soap:Body>
-                                                
-                                              <ns2:isThereAnyPending xmlns:ns2="http://factory/">
-                                                    
-                                              </ns2:isThereAnyPending>
-                                                
-                                          </soap:Body>
-                                      </soap:Envelope>`;
-        var xmlDetectPendingsReq = new XMLHttpRequest();
-        xmlDetectPendingsReq.onreadystatechange = function() {
-          console.log("readystate: "+this.readyState+" status:"+this.status);
-          if (this.readyState==4 && this.status==200) {
-            detectionParser = new DOMParser();
-            detectionParsed = detectionParser.parseFromString(this.responseText,"text/xml");
-            console.log(this.responseText);
-            isThereAnyPending = detectionParsed.getElementsByTagName("return")[0].childNodes[0].nodeValue;
-            if (isThereAnyPending) {
-              console.log("true");
-              isChecking = true;
-            }
-            else {
-              console.log("false");
-              isChecking = false;
-            }
-                                
-          }
-        };
-        xmlDetectPendingsReq.open('POST',url,true);
-        xmlDetectPendingsReq.setRequestHeader("Content-type","text/xml");
-        xmlDetectPendingsReq.send(msgCheckPendings);
-        sleep(10000).then(() => { console.log("Refetch"); });
+        // console.log("readySTateDelivreq:"+xmlHttpDelivReq.readyState+" status delivreq:"+xmlHttpDelivReq.status);
+        
             
           
-      }
         // }
   }
+
 
 </script>
 </html>
